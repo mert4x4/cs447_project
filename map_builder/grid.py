@@ -47,11 +47,25 @@ class Grid():
                 elif button == 3:
                     rect.uncheck()
 
+    def check_by_grid_coordinate(self,x,y,button):
+        for rect in self.rectangles:
+            if(x == rect.x and y == rect.y):
+                if button == 1:
+                    rect.check()
+                elif button == 3:
+                    rect.uncheck()
+
+
+    def mouse_coordinate_to_grid_coordinate(self,pos):
+        return (pos[0]//self.gridlen, pos[1]//self.gridlen)
+    
+
     def get_checked_array(self):
         array = []
         for i in self.rectangles:
             array.append(i.checked)
         return array
+
 
     def reset(self):
         self.rectangles = []

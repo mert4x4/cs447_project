@@ -37,4 +37,3 @@ class SocketHandler:
 
     def close(self):
         self.client_socket.close()
-

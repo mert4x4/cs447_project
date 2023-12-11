@@ -1,6 +1,7 @@
 import pygame
 from grid import *
 from socketHandler import *
+import ast
 
 screen_size = (640, 480)
 screen = pygame.display.set_mode(screen_size)
@@ -10,11 +11,15 @@ running = True
 
 mouse_button = 0
 
-keys = {pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4}
-
-
 def data_receive_event(received_data):
     print(received_data)
+    data = list(map(str, received_data.split(',')))
+    if data[0] == 'init':
+        print('init time')
+
+    if data[0] == 'click':
+        grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]))
+
 
 socketHandler = SocketHandler("127.0.0.1", 2000, receive_callback=data_receive_event)  # Pass the callback
 
@@ -29,14 +34,7 @@ def event_handler(e):
     if e.type == pygame.MOUSEBUTTONDOWN:
         mouse_button = e.button
         grid.check_by_click(e.pos, mouse_button)
-
-    if e.type == pygame.MOUSEBUTTONUP:
-        mouse_button = 0
-        grid.check_by_click(e.pos, mouse_button)
-
-    if e.type == pygame.MOUSEMOTION:
-        grid.check_by_click(e.pos, mouse_button)
-
+        socketHandler.send_message('click,'+ str(mouse_button)+ ',' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ',' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]))
     if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_s:
             print("saved")
