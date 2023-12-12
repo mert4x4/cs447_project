@@ -1,4 +1,3 @@
-import json
 import socket
 import threading
 
@@ -10,21 +9,26 @@ class Rectangle():
         self.gridlen = gridlen
         self.real_x = self.x*gridlen
         self.real_y = self.y*gridlen
-        self.checked = False
-
-    def check(self):
+        self.checked = -1
         self.color = (0,200,130)
-        self.checked = True
+
+    def check(self,color_id):
+        self.checked = color_id
+
+    def set_color(self,color):
+        self.color = color
 
     def uncheck(self):
         self.color = (255,255,255)
-        self.checked = False
+        self.checked = -1
         
 class Grid():
     def __init__(self,screen_size):
         self.rectangles = []
         self.gridlen = 20
         self.screen_size = screen_size
+        self.colors = [(0,200,130),(0,100,130),(78,10,130)]
+        self.selected_color = 0
 
     def append_grid(self):
         if(len(self.rectangles) != 768):
@@ -34,11 +38,12 @@ class Grid():
                 for y in range(0,int(y_)):
                     self.rectangles.append(Rectangle(x,y,(255,255,255),self.gridlen))
 
-    def check_by_grid_coordinate(self,x,y,button):
+    def check_by_grid_coordinate(self,x,y,button,selected_color):
         for rect in self.rectangles:
             if(x == rect.x and y == rect.y):
+                rect.set_color(self.colors[selected_color])
                 if button == 1:
-                    rect.check()
+                    rect.check(selected_color)
                 elif button == 3:
                     rect.uncheck()
 
@@ -47,6 +52,7 @@ class Grid():
         for i in self.rectangles:
             array.append(int(i.checked))
         return array
+
 
 
     def reset(self):
@@ -102,7 +108,7 @@ class SocketHandler:
 
                 if data[0] == 'click':
                     print("asdasd")
-                    self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]))
+                    self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]))
                     self.grid.append_grid()
 
                 # Send the received message to all clients
