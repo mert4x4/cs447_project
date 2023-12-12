@@ -70,4 +70,11 @@ class Grid():
     def reset(self):
         self.rectangles = []
         self.append_grid()
+    
+    def load_checked(self,array):
+        for i in range(len(self.rectangles)):
+            if array[i] == 1:
+                self.rectangles[i].check()
+            else:
+                self.rectangles[i].uncheck()
             

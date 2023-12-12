@@ -19,7 +19,7 @@ class SocketHandler:
     def receive_messages(self):
         while True:
             try:
-                data = self.client_socket.recv(1024)
+                data = self.client_socket.recv(8192)
                 if data:
                     message = data.decode('utf-8')
                     #print(f"Received message: {message}")

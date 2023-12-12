@@ -1,7 +1,6 @@
 import pygame
 from grid import *
 from socketHandler import *
-import ast
 
 screen_size = (640, 480)
 screen = pygame.display.set_mode(screen_size)
@@ -12,10 +11,16 @@ running = True
 mouse_button = 0
 
 def data_receive_event(received_data):
-    print(received_data)
-    data = list(map(str, received_data.split(',')))
+    #print(received_data)
+    data = list(map(str, received_data.split(';')))
+    
     if data[0] == 'init':
-        print('init time')
+        if(len(data[1]) != 0):
+            data_ = data[1][1:-1]
+            data__ = data_.replace(" ", "")
+            data___ = list(map(int,data__.split(',')))
+            grid.load_checked(data___)
+
 
     if data[0] == 'click':
         grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]))
@@ -34,7 +39,7 @@ def event_handler(e):
     if e.type == pygame.MOUSEBUTTONDOWN:
         mouse_button = e.button
         grid.check_by_click(e.pos, mouse_button)
-        socketHandler.send_message('click,'+ str(mouse_button)+ ',' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ',' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]))
+        socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]))
     if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_s:
             print("saved")
