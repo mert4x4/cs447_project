@@ -1,5 +1,5 @@
 import pygame
-from grid import *
+from entities.grid import Grid
 from socketHandler import *
 
 screen_size = (640, 480)

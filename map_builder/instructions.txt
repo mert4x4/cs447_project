@@ -1,3 +1,0 @@
--left click to put block
--right click to remove block
--middle click to see coordinates
