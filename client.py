@@ -1,6 +1,7 @@
 import pygame
 from entities.grid import Grid
 from socketHandler import *
+import time
 
 def data_receive_event(received_data, grid):
     data = list(map(str, received_data.split(';')))
@@ -16,8 +17,15 @@ def data_receive_event(received_data, grid):
         grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]))
 
 def draw(grid, screen):
-    grid.draw_grid(screen)
-    pygame.display.flip()
+    if not hasattr(draw, "last_call_time"):
+        draw.last_call_time = 0
+
+    current_time = time.time()
+
+    if current_time - draw.last_call_time > 1:
+        grid.draw_grid(screen)
+        pygame.display.flip()
+        draw.last_call_time = current_time
 
 def event_handler(e, grid, socketHandler):
     mouse_button = 0
