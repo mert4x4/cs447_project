@@ -1,6 +1,7 @@
 import socket
 import threading
 from entities.grid import Grid
+from entities.color_picker import ColorPicker
 
 
         
@@ -15,6 +16,7 @@ class SocketHandler:
         self.receive_callback = receive_callback
         self.grid =Grid((640, 480))
         self.grid.append_grid()
+        self.color_picker = ColorPicker((200, 480), 640)
 
     def start_server(self):
         self.server_socket.bind((self.host, self.port))
@@ -53,7 +55,7 @@ class SocketHandler:
 
                 if data[0] == 'click':
                     print("asdasd")
-                    self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]))
+                    self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
                     self.grid.append_grid()
 
                 # Send the received message to all clients

@@ -6,8 +6,6 @@ class Grid():
         self.rectangles = []
         self.gridlen = 20
         self.screen_size = screen_size
-        self.colors = [(0,200,130),(0,100,130),(78,10,130)]
-        self.selected_color = 0
 
     def append_grid(self):
         x_ = self.screen_size[0]/self.gridlen
@@ -21,23 +19,23 @@ class Grid():
             pygame.draw.rect(screen,rect.color,(rect.real_x,rect.real_y,self.gridlen,self.gridlen),0)
             pygame.draw.rect(screen,(0,0,0),(rect.real_x,rect.real_y,self.gridlen,self.gridlen),1)
 
-    def check_by_click(self,pos,button):
+    def check_by_click(self,pos,button, color_id, color):
         for rect in self.rectangles:
             if(pos[0]//self.gridlen == rect.x and pos[1]//self.gridlen == rect.y):
-                rect.set_color(self.colors[self.selected_color])
+                rect.set_color(color)
                 if button == 1:
-                    rect.check(self.selected_color)
+                    rect.check(color_id)
                 elif button == 2:
                     print(rect.x,rect.y)
                 elif button == 3:
                     rect.uncheck()
 
-    def check_by_grid_coordinate(self,x,y,button,selected_color):
+    def check_by_grid_coordinate(self,x,y,button, color_id, colors):
         for rect in self.rectangles:
             if(x == rect.x and y == rect.y):
-                rect.set_color(self.colors[selected_color])
+                rect.set_color(colors[color_id])
                 if button == 1:
-                    rect.check(selected_color)
+                    rect.check(color_id)
                 elif button == 3:
                     rect.uncheck()
 
@@ -57,10 +55,10 @@ class Grid():
         self.rectangles = []
         self.append_grid()
     
-    def load_checked(self,array):
+    def load_checked(self,array,colors):
         for i in range(len(self.rectangles)):
             if array[i] != -1:
-                self.rectangles[i].set_color(self.colors[array[i]])
+                self.rectangles[i].set_color(colors[array[i]])
                 self.rectangles[i].check(i)
             else:
                 self.rectangles[i].set_color((255,255,255))
