@@ -2,7 +2,8 @@ import pygame
 from entities.grid import Grid
 from socketHandler import *
 import time
-
+previous_call_time = None
+previous_attempt = None
 def data_receive_event(received_data, grid):
     data = list(map(str, received_data.split(';')))
     
@@ -17,23 +18,30 @@ def data_receive_event(received_data, grid):
         grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]))
 
 def draw(grid, screen):
-    if not hasattr(draw, "last_call_time"):
-        draw.last_call_time = 0
-
-    current_time = time.time()
-
-    if current_time - draw.last_call_time > 1:
-        grid.draw_grid(screen)
-        pygame.display.flip()
-        draw.last_call_time = current_time
+    grid.draw_grid(screen)
+    pygame.display.flip()
 
 def event_handler(e, grid, socketHandler):
     mouse_button = 0
-
+    global previous_call_time
+    global previous_attempt
+    
     if e.type == pygame.MOUSEBUTTONDOWN:
-        mouse_button = e.button
-        grid.check_by_click(e.pos, mouse_button)
-        socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(grid.selected_color))
+        current_time = time.time()
+        if previous_call_time == None:
+            previous_call_time = current_time
+            mouse_button = e.button
+            grid.check_by_click(e.pos, mouse_button)
+            socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(grid.selected_color))
+        elif current_time - previous_call_time > 5:
+            previous_call_time = current_time
+            mouse_button = e.button
+            grid.check_by_click(e.pos, mouse_button)
+            socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(grid.selected_color))
+        elif current_time - previous_call_time <= 5 and current_time - previous_call_time>1:
+            remaining_time = 3-(current_time - previous_call_time)
+            print("You must wait at least,",int(remaining_time),"more seconds")
+
     if e.type == pygame.KEYDOWN:
         keys =[pygame.K_1,pygame.K_2,pygame.K_3,pygame.K_4]
         for i in range(len(keys) - 1):
