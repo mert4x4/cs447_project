@@ -37,7 +37,7 @@ def event_handler(e, grid, socketHandler):
             mouse_button = e.button
             grid.check_by_click(e.pos, mouse_button)
             socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(grid.selected_color))
-        elif current_time - previous_call_time <= 5 and current_time - previous_call_time>1:
+        elif current_time - previous_call_time <= 5 and (current_time - previous_call_time)>1:
             remaining_time = 5-(current_time - previous_call_time)
             print("You must wait at least,",int(remaining_time),"more seconds")
 
