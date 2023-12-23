@@ -3,7 +3,6 @@ from entities.grid import Grid
 from socketHandler import *
 import time
 previous_call_time = None
-previous_attempt = None
 def data_receive_event(received_data, grid):
     data = list(map(str, received_data.split(';')))
     
@@ -39,7 +38,7 @@ def event_handler(e, grid, socketHandler):
             grid.check_by_click(e.pos, mouse_button)
             socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(grid.selected_color))
         elif current_time - previous_call_time <= 5 and current_time - previous_call_time>1:
-            remaining_time = 3-(current_time - previous_call_time)
+            remaining_time = 5-(current_time - previous_call_time)
             print("You must wait at least,",int(remaining_time),"more seconds")
 
     if e.type == pygame.KEYDOWN:
