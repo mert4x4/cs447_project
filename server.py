@@ -54,9 +54,7 @@ class SocketHandler:
                 data = list(map(str, message.split(';')))
 
                 if data[0] == 'click':
-                    print("asdasd")
                     self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
-                    self.grid.append_grid()
 
                 # Send the received message to all clients
                 self.send_to_all_clients(message)
