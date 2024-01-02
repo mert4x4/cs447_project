@@ -1,9 +1,9 @@
 import socket
 import threading
 from entities.grid import Grid
-
-
-        
+from entities.color_picker import ColorPicker
+from datetime import datetime
+last_request= {}
 
 class SocketHandler:
     def __init__(self, host, port, receive_callback=None):
@@ -15,6 +15,7 @@ class SocketHandler:
         self.receive_callback = receive_callback
         self.grid =Grid((640, 480))
         self.grid.append_grid()
+        self.color_picker = ColorPicker((200, 480), 640)
 
     def start_server(self):
         self.server_socket.bind((self.host, self.port))
@@ -41,23 +42,42 @@ class SocketHandler:
         client_socket.send(message.encode('utf-8'))
 
     def handle_client(self, client_socket):
+        global last_request
         try:
             while True:
                 data = client_socket.recv(1024)
                 if not data:
                     break
                 message = data.decode('utf-8')
-                print(f"Received message from {client_socket.getpeername()}: {message}")
-
+                #print(f"Received message from {client_socket.getpeername()}: {message}")
+                peer_address = f"{client_socket.getpeername()[0]}.{client_socket.getpeername()[1]}"
                 data = list(map(str, message.split(';')))
 
                 if data[0] == 'click':
-                    print("asdasd")
-                    self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]))
-                    self.grid.append_grid()
-
-                # Send the received message to all clients
-                self.send_to_all_clients(message)
+                    # if plays in board
+                    if int(data[2]) < 32:
+                        #no last request
+                        if peer_address not in last_request:
+                            last_request[peer_address] = data[5]
+                            self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
+                            self.send_to_all_clients(message)
+                        #if there is a last request
+                        else:
+                            last_call = datetime.strptime(last_request[peer_address], "%Y-%m-%d %H:%M:%S")
+                            now = datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S")
+                            #check last request
+                            if (now-last_call).total_seconds() >10:
+                                last_request[peer_address] = data[5]
+                                self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
+                                self.send_to_all_clients(message)
+                            else:
+                                client_message = "you have to wait " + str(10-int((now-last_call).total_seconds())) + " seconds"
+                                print(client_message)
+                                client_socket.send(client_message.encode('utf-8'))
+                                
+                    else:
+                        self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
+                        self.send_to_all_clients(message)
 
         except socket.error:
             print(f"Connection with {client_socket.getpeername()} closed.")
