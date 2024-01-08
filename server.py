@@ -79,17 +79,17 @@ class SocketHandler:
                             self.send_to_all_clients(message)
                         #if there is a last request
                         else:
-                            last_call = datetime.strptime(last_request[peer_address], "%Y-%m-%d %H:%M:%S")
-                            now = datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S")
+                            last_call = datetime.strptime(last_request[peer_address], "%Y-%m-%d %H:%M:%S.%f")
+                            now = datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S.%f")
                             #check last request
                             if (now-last_call).total_seconds() >10:
                                 last_request[peer_address] = data[5]
                                 self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
                                 self.send_to_all_clients(message)
                             else:
-                                client_message = "you have to wait " + str(10-int((now-last_call).total_seconds())) + " seconds"
-                                print(client_message)
-                                client_socket.send(client_message.encode('utf-8'))
+                                duration = now - last_call
+                                wait_message = f"wait;{10 - duration.total_seconds()}"
+                                client_socket.send(wait_message.encode('utf-8'))
                                 
                     else:
                         self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
