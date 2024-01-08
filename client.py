@@ -72,7 +72,7 @@ def main():
     grid.append_grid()
     color_picker = ColorPicker(color_picker_size, grid_size[0])
     timer = Timer()
-    socketHandler = SocketHandler("127.0.0.1", 2000, receive_callback=lambda data: data_receive_event(data, grid, color_picker, timer))
+    socketHandler = SocketHandler("34.125.100.23", 2000, receive_callback=lambda data: data_receive_event(data, grid, color_picker, timer))
 
     socketHandler.connect()
     socketHandler.start_receive_thread()
