@@ -59,14 +59,13 @@ def draw(grid, color_picker, screen, received_data):
 
 def event_handler(e, grid, color_picker, socketHandler):
     mouse_button = 0
-
-if e.type == pygame.MOUSEBUTTONDOWN:
-   if e.button == 1 or e.button == 3:
-        mouse_button = e.button
-        color_picker.check_click(e.pos)
-        color_id, color = color_picker.get_current_color()
-        #grid.check_by_click(e.pos, mouse_button, color_id, color)
-        socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(color_id) + ";"+ datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    if e.type == pygame.MOUSEBUTTONDOWN:
+       if e.button == 1 or e.button == 3:
+            mouse_button = e.button
+            color_picker.check_click(e.pos)
+            color_id, color = color_picker.get_current_color()
+            #grid.check_by_click(e.pos, mouse_button, color_id, color)
+            socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(color_id) + ";"+ datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     if e.type == pygame.KEYDOWN:
         keys =[pygame.K_1,pygame.K_2,pygame.K_3,pygame.K_4]
         for i in range(len(keys) - 1):
