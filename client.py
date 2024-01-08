@@ -36,7 +36,7 @@ def data_receive_event(received_data, grid, color_picker):
             complete_init_data = complete_init_data.replace('init10', '').replace('init11', '').replace('init12', '')
             complete_init_data = re.sub(r'init\d', '', complete_init_data)
             final_data = [int(x) for x in re.findall(r'-?\d+', complete_init_data)]
-            print(complete_init_data)            
+            #print(complete_init_data)            
             grid.load_checked(final_data, color_picker.colors)
 
             for key in init_data_chunks:
@@ -60,7 +60,8 @@ def draw(grid, color_picker, screen, received_data):
 def event_handler(e, grid, color_picker, socketHandler):
     mouse_button = 0
 
-    if e.type == pygame.MOUSEBUTTONDOWN:
+if e.type == pygame.MOUSEBUTTONDOWN:
+   if e.button == 1 or e.button == 3:
         mouse_button = e.button
         color_picker.check_click(e.pos)
         color_id, color = color_picker.get_current_color()
