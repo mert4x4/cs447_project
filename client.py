@@ -1,24 +1,17 @@
 import pygame
 from entities.grid import Grid
 from entities.color_picker import ColorPicker
+from entities.timer import Timer
 from socketHandler import *
 from datetime import datetime
 import re
 
-check_mes = "you have to"
-
-printData =""
-
-
 init_data_chunks = {'init1': "", 'init2': "", 'init3': "", 'init4': "", 'init5': "", 'init6': "", 'init7': "", 'init8': "", 'init9': "", 'init10': "", 'init11': "", 'init12': ""}
 
-def data_receive_event(received_data, grid, color_picker):
-    global printData
-
-    if check_mes in received_data:
-        printData = received_data
-    else:
-        printData = ""
+def data_receive_event(received_data, grid, color_picker, timer):
+    if 'wait' in received_data:
+        data = received_data.split(';')
+        timer.set_timer(float(data[1]))
 
     if 'click' in received_data:
         data = received_data.split(';')
@@ -43,19 +36,12 @@ def data_receive_event(received_data, grid, color_picker):
                 init_data_chunks[key] = ""
 
 
-def draw_received_data(screen, received_data):
-    pygame.font.init()
-    font = pygame.font.Font(None, 20)  
-    text_color = (255, 255, 255) 
-    received_data_text = font.render(received_data, True, text_color)
-    screen.blit(received_data_text, (screen.get_width() - received_data_text.get_width() - 10, screen.get_height() - received_data_text.get_height() - 10))
-
-
-def draw(grid, color_picker, screen, received_data):
+def draw(grid, color_picker, timer, screen):
     grid.draw_grid(screen)
     color_picker.draw(screen)
-    draw_received_data(screen, received_data) 
+    timer.draw(screen)
     pygame.display.flip()
+
 
 def event_handler(e, grid, color_picker, socketHandler):
     mouse_button = 0
@@ -65,7 +51,7 @@ def event_handler(e, grid, color_picker, socketHandler):
             color_picker.check_click(e.pos)
             color_id, color = color_picker.get_current_color()
             #grid.check_by_click(e.pos, mouse_button, color_id, color)
-            socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(color_id) + ";"+ datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            socketHandler.send_message('click;'+ str(mouse_button)+ ';' + str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[0]) + ';' +str(grid.mouse_coordinate_to_grid_coordinate(e.pos)[1]) + ';' + str(color_id) + ";"+ datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")+ ";")
     if e.type == pygame.KEYDOWN:
         keys =[pygame.K_1,pygame.K_2,pygame.K_3,pygame.K_4]
         for i in range(len(keys) - 1):
@@ -85,20 +71,20 @@ def main():
     grid = Grid(grid_size)
     grid.append_grid()
     color_picker = ColorPicker(color_picker_size, grid_size[0])
-    socketHandler = SocketHandler("34.125.100.23", 2000, receive_callback=lambda data: data_receive_event(data, grid, color_picker))
+    timer = Timer()
+    socketHandler = SocketHandler("127.0.0.1", 2000, receive_callback=lambda data: data_receive_event(data, grid, color_picker, timer))
 
     socketHandler.connect()
     socketHandler.start_receive_thread()
 
     while running:
-        global printData
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             event_handler(event, grid, color_picker, socketHandler)
                 
-        draw(grid, color_picker, screen, printData)
+        timer.update()
+        draw(grid, color_picker, timer, screen)
         clock.tick(60)
 
     socketHandler.close()
