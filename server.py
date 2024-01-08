@@ -2,9 +2,10 @@ import socket
 import threading
 from entities.grid import Grid
 from entities.color_picker import ColorPicker
+from datetime import datetime
+import time
 
-
-        
+last_request= {}
 
 class SocketHandler:
     def __init__(self, host, port, receive_callback=None):
@@ -39,25 +40,60 @@ class SocketHandler:
     def send_initialization_string(self, client_socket):
         init_array = self.grid.get_checked_array()
         print(len(init_array))
-        message = "init;" + str(init_array)
-        client_socket.send(message.encode('utf-8'))
+        message_prefix = "init"
+        num_chunks = 12  # Update the number of chunks
+
+        chunk_size = len(init_array) // num_chunks
+        remainder = len(init_array) % num_chunks
+
+        for i in range(num_chunks):
+            start_idx = i * chunk_size
+            end_idx = min((i + 1) * chunk_size + (remainder if i < remainder else 0), len(init_array))
+            chunk = init_array[start_idx:end_idx]
+            message = f"{message_prefix}{i + 1};{chunk}"
+            client_socket.send(message.encode('utf-8'))
+            time.sleep(0.05)
+
+        client_socket.send("init_end;".encode('utf-8'))
+
 
     def handle_client(self, client_socket):
+        global last_request
         try:
             while True:
                 data = client_socket.recv(1024)
                 if not data:
                     break
                 message = data.decode('utf-8')
-                print(f"Received message from {client_socket.getpeername()}: {message}")
-
+                #print(f"Received message from {client_socket.getpeername()}: {message}")
+                peer_address = f"{client_socket.getpeername()[0]}.{client_socket.getpeername()[1]}"
                 data = list(map(str, message.split(';')))
 
                 if data[0] == 'click':
-                    self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
-
-                # Send the received message to all clients
-                self.send_to_all_clients(message)
+                    # if plays in board
+                    if int(data[2]) < 32:
+                        #no last request
+                        if peer_address not in last_request:
+                            last_request[peer_address] = data[5]
+                            self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
+                            self.send_to_all_clients(message)
+                        #if there is a last request
+                        else:
+                            last_call = datetime.strptime(last_request[peer_address], "%Y-%m-%d %H:%M:%S")
+                            now = datetime.strptime(data[5], "%Y-%m-%d %H:%M:%S")
+                            #check last request
+                            if (now-last_call).total_seconds() >10:
+                                last_request[peer_address] = data[5]
+                                self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
+                                self.send_to_all_clients(message)
+                            else:
+                                client_message = "you have to wait " + str(10-int((now-last_call).total_seconds())) + " seconds"
+                                print(client_message)
+                                client_socket.send(client_message.encode('utf-8'))
+                                
+                    else:
+                        self.grid.check_by_grid_coordinate(int(data[2]),int(data[3]),int(data[1]),int(data[4]), self.color_picker.colors)
+                        self.send_to_all_clients(message)
 
         except socket.error:
             print(f"Connection with {client_socket.getpeername()} closed.")
@@ -81,5 +117,5 @@ class SocketHandler:
                 client_socket.close()
 
 if __name__ == "__main__":
-    server = SocketHandler('127.0.0.1', 2000)
+    server = SocketHandler('0.0.0.0', 2000)
     server.start_server()

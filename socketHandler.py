@@ -19,7 +19,8 @@ class SocketHandler:
     def receive_messages(self):
         while True:
             try:
-                data = self.client_socket.recv(8192)
+                self.client_socket.settimeout(5)
+                data = self.client_socket.recv(20000)
                 if data:
                     message = data.decode('utf-8')
                     #print(f"Received message: {message}")
