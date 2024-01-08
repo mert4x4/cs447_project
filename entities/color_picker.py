@@ -33,5 +33,5 @@ class ColorPicker():
             self.selected_color = i
             break
 
-    print(self.selected_color)
+    #print(self.selected_color)
     
