@@ -8,11 +8,8 @@ class ColorPicker():
     self.selected_color = 0
 
   def draw(self,screen):
-    # draw bg blac
     pygame.draw.rect(screen,(0,0,0),(self.x_offset,0,self.size[0],self.size[1]),0)
-    # Draw the color picker
     for i in range(len(self.colors)):
-      # make a white border around the selected color
       if i == self.selected_color:
         pygame.draw.rect(screen,(255,255,255),(self.x_offset + 10 - 5, 10 + i * 50 - 5, self.size[0] - 20 + 10, 40 + 10),0)
         pygame.draw.rect(screen,(0,0,0),(self.x_offset + 10 - 5, 10 + i * 50 - 5, self.size[0] - 20 + 10, 40 + 10),1)
