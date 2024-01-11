@@ -25,15 +25,15 @@ class SocketHandler:
                     message = data.decode('utf-8')
                     #print(f"Received message: {message}")
                     if self.receive_callback:
-                        self.receive_callback(message)  # Call the external callback function
-                    self.receive_event.set()  # Trigger the receive event
+                        self.receive_callback(message)
+                    self.receive_event.set()
             except socket.error:
                 # No data received
                 pass
 
     def start_receive_thread(self):
         receive_thread = threading.Thread(target=self.receive_messages)
-        receive_thread.daemon = True  # Daemonize the thread, so it exits when the main thread exits
+        receive_thread.daemon = True
         receive_thread.start()
 
     def close(self):

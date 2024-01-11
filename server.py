@@ -12,8 +12,8 @@ class SocketHandler:
         self.host = host
         self.port = port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clients = []  # List to store connected clients
-        self.clients_lock = threading.Lock()  # Lock for synchronizing access to self.clients
+        self.clients = []
+        self.clients_lock = threading.Lock()
         self.receive_callback = receive_callback
         self.grid =Grid((640, 480))
         self.grid.append_grid()
@@ -41,7 +41,7 @@ class SocketHandler:
         init_array = self.grid.get_checked_array()
         print(len(init_array))
         message_prefix = "init"
-        num_chunks = 12  # Update the number of chunks
+        num_chunks = 12 
 
         chunk_size = len(init_array) // num_chunks
         remainder = len(init_array) % num_chunks
@@ -108,7 +108,7 @@ class SocketHandler:
                 try:
                     client.sendall(message.encode('utf-8'))
                 except socket.error:
-                    # Handle errors (e.g., disconnected clients)
+                    
                     pass
 
     def close(self):
